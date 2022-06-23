@@ -1,0 +1,599 @@
+<!DOCTYPE HTML>
+<!--
+	Stellar by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Zcashd fullnodejs by keepbitcoinfree</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="css/main.css" />
+		<noscript><link rel="stylesheet" href="css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload" onload="init()">
+	
+	<% const us = new Intl.NumberFormat('en-us'); %>
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header" class="alt">
+						<span class="logo"><img src="images/zcash-icon-fullcolor.png" height="160px" width="160px" alt="" /></span>
+						<h1>zcashd fullnodejs</h1>
+						<p>a local full node GUI for the <b><a href="https://zcash.readthedocs.io/en/latest/rtd_pages/zcashd.html" target="_blank">zcashd wallet</a></b>.<br />
+						built with <a href="https://nodejs.org/" target="_blank">nodejs</a>, <a href="http://expressjs.com/" target="_blank">express</a> & <a href="https://axios-http.com/docs/intro" target="_blank">axios</a>. <span style="font-size:10pt">Created by <a href="https://keepbitcoinfree.org" target="_blank">keepbitcoinfree.org/a> </span></p>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul>
+							<li><a href="#intro" class="active">Wallet Info</a></li>
+							<li><a href="#first">zAccounts</a></li>
+							<li><a href="#send">Send ZEC</a></li>
+							<li><a href="#second">Stats</a></li>
+							
+							<% if(zUsd){ %>
+								<li><div id="zUsdnav">1 ZEC = $<%= us.format(zUsd.toFixed(2)) %></div></li>
+							<% } %>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+						<!-- Introduction -->
+							<section id="intro" class="main special">
+								<div class="spotlight">
+									<div class="content">
+										<header class="major" style="text-align:center">
+											<h2>Zcashd Wallet Info</h2>
+											<% if(zUsd){ %>
+											<div id="zUsdnav1" style="font-size:10pt">1 ZEC = $<%= us.format(zUsd) %> </div>
+											<% } %>
+										</header>
+										<p style="text-align:left;">
+										
+									<% if(wallet) { %>
+										
+										<div class="row1">
+											<div class="column1 bigger">
+											<b>Shielded Balance</b>: 
+											</div>
+
+										</div>
+										
+										<div class="row1">
+											<div id="shieldedBal" class="column2 bigger">
+												<%= wallet.shielded_balance %> <% if(wallet.shielded_balance > 0 && zUsd){  %> 
+											ZEC ($<%= us.format((wallet.shielded_balance * zUsd).toFixed(2)) %>) 
+											<% } %> 
+											</div>
+										</div>	
+											
+											
+											<div class="row1">
+											<div class="column1">
+												<b>Unconfirmed Shielded Balance</b>: 
+											</div>
+											</div>
+
+										<div class="row1">
+											<div class="column2">
+											<%= wallet.shielded_unconfirmed_balance %> <% if(wallet.shielded_unconfirmed_balance > 0 && zUsd){ %> 
+										ZEC ($<%= us.format((wallet.shielded_unconfirmed_balance * zUsd).toFixed(2)) %>)
+										<% } %> 
+											</div>
+										</div>
+										
+											<div class="row1">
+											<div class="column1">
+												<b>Transparent Balance</b>: 
+											</div>
+											</div>
+										
+										<div class="row1">
+										<div class="column2">
+											<%= wallet.balance %> <% if(wallet.balance > 0 && zUsd){ %> 
+											ZEC ($<%= us.format((wallet.balance * zUsd).toFixed(2)) %>)
+											<% } %> 
+										</div>
+										</div>
+										
+										
+											<div class="row1">
+											<div class="column1">
+												<b>Unconfirmed T Balance</b>: 
+											</div>
+											</div>
+										
+										<div class="row1">
+										<div class="column2">
+											<%= wallet.unconfirmed_balance %> <% if(wallet.unconfirmed_balance > 0 && zUsd){ %> 
+											ZEC $<%= us.format((wallet.unconfirmed_balance * zUsd).toFixed(2)) %>)
+											<% } %> 
+										</div>
+										</div>
+										
+										
+											<div class="row1">
+											<div class="column1">
+												<b>Tx Count</b>: 
+											</div>
+											</div>
+										
+										<div class="row1">
+										<div class="column2">
+											<%= us.format(wallet.txcount.toFixed(0)) %> 
+										</div>
+										</div>
+										
+										
+																					<div class="row1">
+											<div class="column1">
+												<b>Wallet Version</b>: 
+											</div>
+											</div>
+										
+										<div class="row1">
+										<div class="column2">
+											<%= wallet.walletversion %>
+										</div>
+										</div>
+										
+										<% }else{ %>
+											<div>
+											Still loading...
+											
+											</div>
+										<% } %>
+										
+										
+										</p>
+										<ul class="actions">
+										
+										<li><a href="http://localhost:8081" class="button">Refresh</a></li>
+										<li style="opacity:0.6"><a class="button primary">Shield Transparent ZEC (coming s00n)</a></li> 
+										
+									<!-- 	<button onClick="window.location.reload();">Refresh</button> 
+									<div style="opacity:0.7">
+										<button style="margin-left:2em; margin-right:2em;">Auto-Shield Transparent ZEC (s00n)</button></div>
+										
+										 <form action="get_accounts" method="GET">
+									
+												  <input class="button" type="submit" value="Get Accounts">        
+											</form>
+											<li><a href="" class="button">Get Accounts</a></li> -->
+										</ul>
+									</div>
+									
+									
+									<!-- <span class="image"><img src="images/pic01.jpg" alt="" /></span> -->
+								</div>
+							</section>
+							
+							
+							
+							<script type="text/javascript">
+
+							  function showDetails(counter){
+								        let divName = 'accountz'+counter;
+								        //console.log(divName);
+								        var x = document.getElementById(divName);
+								      
+								        
+								        //console.log(x);
+								        if (x.style.display == "none") {
+								          x.style.display = "block";
+								          
+								        } else {
+								          x.style.display = "none";
+								        }
+								      }
+
+							function init() {
+								var x = document.getElementById("accountz0");
+								x.style.display = "block";
+							}
+							
+							function showQR(address, n) {
+								console.log('address ', address);
+								console.log('counter n ', n);
+								
+								var el = kjua({text: address, rounded: 50});
+								document.getElementById('qrcode'+address).appendChild(el);
+								
+								 let divName = 'qrbtn'+n;
+								 var x = document.getElementById(divName);
+								 x.style.display = "none";
+								 
+							}
+
+							
+							function showLoad() {
+								document.getElementById('loadingGif').style.display = "block";
+							}
+							
+							function showAddresses() {
+							
+								let x = document.getElementById('otherAddresses');
+								let more = document.getElementById('more');
+								let moredown = document.getElementById('moredown');
+								
+										if (x.style.display == "none") {
+								          x.style.display = "block";
+										  moredown.style.display = "block";
+								          more.style.display = "none";
+								        } else {
+								          x.style.display = "none";
+								          more.style.display = "block";
+								          moredown.style.display = "none";
+								          
+								        }
+								
+							
+							}
+							
+							</script>
+							
+							<script>
+							
+							$( '.dropdown-toggle' ).on( 'click touchstart', function(){
+							  $( '.dropdown-menu' ).toggleClass( 'dropdown-menu-open' );
+							});
+							
+							
+														
+							</script>
+							
+							
+							<section id="first" class="main special">
+								<div class="spotlight">
+									<div class="content" style="width:calc(100% - 3em); text-align:left">
+										<header class="major" style="text-align:center;">
+										<h2>zAccounts </h2>
+										<h4>*Shielded funds*</h4>
+										</header>
+									<% if(zAccounts) { %>
+									<% let counter = 0; %>
+										<ul id="tabs">
+										<% zAccounts.forEach(zacct => { %>
+										
+										<li><span onClick="showDetails(<%= counter %>)" style="text-align:left"><b>zAccount # <%= zacct.account %> </b> </span></li>
+
+										
+										<% }) %> </ul> 
+										<% zAccounts.forEach(zacct => { %>
+										
+										<p id="accountz<%= counter %>" class="wordwrap" style="text-align:left;word-wrap: break-word; box-shadow: rgba(0, 0, 0, 0.4) -5px 5px, rgba(0, 0, 0, 0.3) -10px 10px, rgba(0, 0, 0, 0.2) -15px 15px, rgba(0, 0, 0, 0.1) -20px 20px, rgba(0, 0, 0, 0.05) -25px 25px; padding:15px;width:100%;display:none">
+										<!-- box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px; -->
+										
+										   <% if (zacct.pools){ %>
+										   
+										   <b>Account Pools</b>: (<%= zacct.pools.minimum_confirmations %> Minimum Confirmations)<br />
+										   
+											 <% if (zacct.pools.pools.orchard){ %>
+											<span style="margin-left:.5em;">&#8688; Orchard: <%= zacct.pools.pools.orchard.valueZat / 100000000 %> ZEC ($<%= us.format((zacct.pools.pools.orchard.valueZat / 100000000) * zUsd) %>)  </span><br />
+											<% } %>
+												<% if (zacct.pools.pools.sapling){ %>
+												<!-- &#8688; --> 
+												&#10238; Sapling: <%= zacct.pools.pools.sapling.valueZat / 100000000 %> ZEC <br />
+												
+												<% } %>
+													<% if (zacct.pools.pools.sprout){ %>
+												&#8688; Sprout: <%= zacct.pools.pools.sprout.valueZat / 100000000 %> ZEC <br /> 
+												<% } %>
+										   <% } %>
+										   <br />
+										<b>Unified Addresses</b>: <br />
+										   <% let n = 0; %>
+										   <% zacct.addresses.forEach(zaddr => { %> 
+										  
+										   <% let ua = zaddr.ua %>
+										    <% let unspentBal = 0; %>
+										    <! -- TODO: SHOW BAL FOR EACH ADDRESS AND ADD SEND FROM ADDRESS FUNCTIONALITY 
+										<% if(zacct.unspentList){ %>
+										  
+										   <% zacct.unspentList.forEach(utxo => { %>
+										   <% if(utxo.spendable === true && utxo.address === ua && utxo.pool === 'orchard') { %>
+										   <%  unspentBal += utxo.amount %>
+											<% } %>
+										   <!-- TODO: separate by pools -->
+										   <% }) %>
+										   <% } %>
+										   
+										   <br />
+										   
+										 Balance: <%= unspentBal.toFixed(8) %> ZEC ($<%= us.format((unspentBal * zUsd).toFixed(2)) %>) 
+										    
+											
+										   <br /> <%= zaddr.ua %> <br />	<span id="qrcode<%= zaddr.ua %>"></span>	<span onClick="showQR('<%= ua %>', <%= n %>)" id="qrbtn<%= n %>" class="button">Get QR</span> 
+										   <span id="sendbtn<%= ua %>" class="button primary" style="opacity:0.6">Send ZEC</span> 
+											<br />
+										  
+										  
+										  
+										   
+										   <% n++ %>
+										    <% }) %>
+										     	
+										    <% counter++ %>
+										<% }) %>
+										</p>
+									<% } %>								</div>
+									
+									<!-- <span class="image"><img src="images/pic01.jpg" alt="" /></span> -->
+									
+
+								</div>
+								
+								<% if (wallet){ %>
+									<% if(wallet.addresses){ %>
+										<hr width="80%" />
+										<div style="text-align:left;">
+										
+										<h3 onClick="showAddresses()"> Other Addresses known to wallet <span id="more">+</span><span id="moredown" style="display:none;">-</span> </h3> <br />
+										<div id="otherAddresses" style="display:none;">
+										<a href="/addresses">See all addresses (JSON)</a><br />
+										<span style="font-size:10pt">Transparent addresses aren't shown on this page because they slow the page load.</span><br /><br />
+										<% wallet.addresses.forEach(source => { %>
+									
+											Source: <%= source.source %> <br />		+
+																				
+											<% if(source.sapling !== undefined){ %>
+												Sapling pool - <br />
+											<div style="height:150px;overflow:scroll;">
+												<% source.sapling.forEach(addy => { %>
+													<%= addy.addresses %>
+													<br />
+												<% }) %>
+											</div>
+											<% } %>
+											
+											
+<br /><br />
+										
+										<% }) %>
+										
+										
+										</div>
+									<% }  %>
+								<% } %>
+							</section>
+							
+							
+							
+							
+							
+						<!-- Second Section -->
+							<section id="send" class="main special">
+								<header class="major">
+									<h2>Send ZEC</h2>
+									<% if(sendSuccess !== true){ %>
+									<div class="loading" style="text-align:center;">
+										<img src="images/loading.gif" id="loadingGif" height="250px" style="display:none;">
+									</div>
+									<% } %>
+								</header>
+								<div style="text-align: left;">
+								
+								<!-- use txid to track if successful and send back info -->
+
+									
+								<% if(sendSuccess == true){ %>
+									<div> 
+									ZEC tx submitted successfully. <br />
+									<%= successmsg %> <br /><br />
+									</div>
+								<% } %>
+
+								<% if(errormsg){ %>
+									<div style="color:red;">
+									<%= errormsg %>
+									<br /><br />
+									</div>
+								<% } %>
+								
+								</div>
+								<div style="text-align:left">
+								
+								<% if(loggedIn) { %>
+									<form name="sendZECform" action="/#send" method="post">
+									
+									<label for="fromAddress">From Address: </label>
+									<input id="fromAddress" type="text" name="fromAddress" placeholder="From Address..." required>
+									<br />
+									<label for="toAddress">To Address: </label>
+									<input id="toAddress" type="text" name="toAddress" placeholder="To Address..." required>
+									<br />
+									<label for="amount">Amount of ZEC: </label>
+									<input id="amount" type="number" name="amount" placeholder="0.001" min="0.00000001" step="any" required>
+									<br /><br />
+									<input id="allowRevealedAmounts" type="checkbox" name="allowRevealedAmounts" value="off" > 
+									<label for="allowRevealedAmounts">AllowRevealedAmounts? <span style="font-size:10pt">(Required to migrate shielded pools) </span></label>
+									
+									<br />
+									<input type="submit" value="Send ZEC" onClick="showLoad()">
+								</form>
+							
+								<% }else{ %>
+				
+									<form name="loginForm" action="/login#send" method="post">
+									Enter PIN to send ZEC! <br /><br />
+									<label for="amount">PIN: </label>
+									<input id="amount" type="number" name="userPIN" placeholder="0000" min="0000" max="9999" step="1" required>
+									<input type="submit" value="Submit">
+								<% } %>
+								
+								</div>
+								<footer class="major">
+								<!--	<ul class="actions special">
+										<li><a href="generic.html" class="button">Learn More</a></li>
+									</ul> -->
+								</footer>
+							</section> 
+							
+						<!-- Second Section -->
+							<section id="second" class="main special">
+								<header class="major">
+									<h2>Zcash / System Statistics</h2>
+									<p>Info about the Zcash Blockchain and the machine zcashd is running on.</p>
+								</header>
+								<% if(zInfo) { %>
+								<ul class="statistics">
+									<li class="style1">
+										<span class="icon solid fa-code-branch"></span>
+										<strong><%= us.format(zInfo.blocks.toFixed(0)) %> </strong> Block Height
+									</li>
+									<li class="style2">
+										<span class="icon fa-folder-open"></span>
+										<strong> <%= zInfo.build %> </strong> zcashd 
+									</li>
+									<li class="style3">
+										<span class="icon solid fa-signal"></span>
+										<strong><%= zInfo.connections %> </strong> Connections
+									</li>
+									<li class="style4">
+										<span class="icon solid fa-laptop"></span>
+										<strong><%= systemInfo.cpu %></strong> CPUs
+									</li>
+									<li class="style5">
+										<span class="icon fa-gem"></span>
+										<% if(zUsd){ %>
+										<strong>$<%= us.format(zUsd) %> <span style="font-size:8pt">USD</span></strong>= 1 ZEC
+										<% } %>
+									</li>
+								</ul>
+								
+									<p class="content">
+									<% if(zInfo.proxy){ %>
+										zcashd is using a <% if(zInfo.proxy == '127.0.0.1:9050'){ %>TOR<% } %> Proxy: <%= zInfo.proxy %>
+										<br /><br />
+									<% } %>
+								<% }else{ %>
+											<div>
+											Still loading data from RPC calls... please reload the page.
+											</div>
+								<% } %>
+								
+
+								Price info is pulled using <a href="https://www.coingecko.com/en/coins/zcash" target="_blank">CoinGecko</a> APIs. 
+								</p>
+								<footer class="major">
+									<ul class="actions special">
+										<li><a href="https://z.cash/the-basics" target="_blank" class="button">Learn More about Zcash</a></li>
+										<li><a href="https://zcash.readthedocs.io/en/latest/rtd_pages/zcashd.html" target="_blank" class="button">Zcashd Documentation</a></li>
+										<li><a href="https://zcash.github.io/rpc/" target="_blank" class="button">Zcashd RPC API</a></li>
+									
+									</ul>
+								</footer>
+							</section>
+
+						<!-- Get Started 
+							<section id="cta" class="main special">
+								<header class="major">
+									<h2>Congue imperdiet</h2>
+									<p>Donec imperdiet consequat consequat. Suspendisse feugiat congue<br />
+									posuere. Nulla massa urna, fermentum eget quam aliquet.</p>
+								</header>
+								<footer class="major">
+									<ul class="actions special">
+										<li><a href="generic.html" class="button primary">Get Started</a></li>
+										<li><a href="generic.html" class="button">Learn More</a></li>
+										
+									</ul>
+								</footer>
+							</section> -->
+
+					</div>
+
+				<!-- Footer -->
+				<!--	<footer id="footer">
+						<section>
+							<h2>Aliquam sed mauris</h2>
+							<p>Sed lorem ipsum dolor sit amet et nullam consequat feugiat consequat magna adipiscing tempus etiam dolore veroeros. eget dapibus mauris. Cras aliquet, nisl ut viverra sollicitudin, ligula erat egestas velit, vitae tincidunt odio.</p>
+							<ul class="actions">
+								<li><a href="generic.html" class="button">Learn More</a></li>
+							</ul> 
+						</section>-->
+					<!--	<section>
+							<h2>Etiam feugiat</h2>
+							<dl class="alt">
+								<dt>Address</dt>
+								<dd>1234 Somewhere Road &bull; Nashville, TN 00000 &bull; USA</dd>
+								<dt>Phone</dt>
+								<dd>(000) 000-0000 x 0000</dd>
+								<dt>Email</dt>
+								<dd><a href="#">information@untitled.tld</a></dd>
+							</dl>
+							<ul class="icons">
+								<li><a href="#" class="icon brands fa-twitter alt"><span class="label">Twitter</span></a></li>
+								<li><a href="#" class="icon brands fa-facebook-f alt"><span class="label">Facebook</span></a></li>
+								<li><a href="#" class="icon brands fa-instagram alt"><span class="label">Instagram</span></a></li>
+								<li><a href="#" class="icon brands fa-github alt"><span class="label">GitHub</span></a></li>
+								<li><a href="#" class="icon brands fa-dribbble alt"><span class="label">Dribbble</span></a></li>
+							</ul> 
+						</section>
+						
+				
+					</footer> -->
+
+
+		<p class="copyright"><center><img src="images/zcash-logo-vertical-fullcolor.png" height=40%" width="20%" />
+						</center></p>
+						<p class="copyright" style="color:black;width="100%">
+						<center>
+						Design by <a href="https://keepbitcoinfree.org" target="_blank">KeepBitcoinFree.org</a> <br /> <a href="https://html5up.net" style="font-size:6pt">HTML5 UP</a>.
+						</center>
+						</p>
+						
+			</div>
+
+		<!-- Scripts -->
+			<script src="js/jquery.min.js"></script>
+			<script src="js/jquery.scrollex.min.js"></script>
+			<script src="js/jquery.scrolly.min.js"></script>
+			<script src="js/browser.min.js"></script>
+			<script src="js/breakpoints.min.js"></script>
+			<script src="js/util.js"></script>
+			<script src="js/main.js"></script>
+			<script src="js/kjua-0.9.0.min.js"></script>
+			<script src="js/socket.io.js"></script>
+			<script src="js/jquery-1.11.1.js"></script>
+			<script src="js/ejs.min.js"></script>
+				<!-- Initialize socket.io -->
+			<script src="/socket.io/socket.io.js"></script>
+			<!--	// SOCKET LOGIC HERE TO UPDATE PAGE AUTOMAGICALLY -->
+			
+			<script>
+			
+			
+			  var socket = io();
+			  //'http://localhost:8081'
+			  
+			  socket.on('update-zusd', function(zusdNew) {
+					// if( <%= zUsd %> !== zusdNew) {
+						  console.log('NEW PRICE PUSHED - zusd - '+zusdNew);
+						  // update new price for Zcash
+						  zUsd = zusdNew;
+						  console.log('Updated zUsd - ', zUsd);
+						  let x = document.getElementById("zUsdnav")
+						  let text = '1 ZEC = $'+zusdNew;
+						  x.innerHTML = text;
+						  // x.append(text);
+						  //'1 ZEC = $ <%= us.format(zUsd.toFixed(2)) %>'
+						  let y = document.getElementById("zUsdnav1")
+						  y.innerHTML = text;
+
+							var us = new Intl.NumberFormat('en-us');
+							let z = document.getElementById("shieldedBal");
+							let balText = <%= wallet.shielded_balance %> + ' ZEC ($' + us.format(<%= wallet.shielded_balance %> * zUsd) + ')'; 
+							z.innerHTML = balText;
+						 
+						  //TODO: update all ZEC balance in USD numbers with new price of ZEC
+					 // }
+			  });
+			  
+			</script>
+	</body>
+</html>
