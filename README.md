@@ -9,6 +9,7 @@ After your zcashd node is fully synced, follow the below steps:
 2. cd zcashd-fullnodejs/
 3. npm install
 4. node index rpc_username rpc_password 4-digit-PIN
+
 Example: node index myrpcuser myrpcpassword 1234 
 
 The app will now be reachable at http://localhost:8081 on the localhost, or by using the machine's IP address on the local network. As it is a webapp, it can be access on any device with network access and a web browser.
