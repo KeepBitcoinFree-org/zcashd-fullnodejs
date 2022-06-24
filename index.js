@@ -650,7 +650,7 @@ function getZusd(){
 // curl --compressed "https://data.messari.io/api/v1/assets?fields=id,slug,symbol,metrics/market_data/price_usd"
 }
 
-// 
+// get basic Zcashd info, cache response.
 function getZinfo(){
      
     axiosConfig.data = {
@@ -673,6 +673,7 @@ function getZinfo(){
 
 }
 
+// get basic system info, cache response.
 function getSystemInfo(){
     
     let arch = os.arch();
@@ -757,7 +758,7 @@ function zSendMany(fromAddress, toAddress, amount, allowRevealedAmounts) {
     
 }
 
-// run once on app start and then run every n hours. 
+    // run RPC call functions on app start and then run every x seconds to keep info updated and cached.
     getWalletInfo();
     getAccounts();
     getZusd();
@@ -770,7 +771,7 @@ function zSendMany(fromAddress, toAddress, amount, allowRevealedAmounts) {
     setInterval(getZusd, 150000); // run every 150 sec to cach ZEC price from coingecko
     setInterval(getAccounts, 300000); // run every 300 sec to cache any new accounts created (these shouldn't change often unless creating new accounts/addresses
     setInterval(getZinfo, 19000); // cache new zcash blockchain info every 19 sec
-    setInterval(listAddresses, 21600000);
+    setInterval(listAddresses, 21600000); // get New entire wallet address list every 12 hours
 
 function timeout(ms) { //pass a time in milliseconds to this function
     return new Promise(resolve => setTimeout(resolve, ms));

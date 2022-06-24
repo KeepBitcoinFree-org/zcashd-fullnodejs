@@ -3888,3 +3888,7 @@ font-size:10pt;
 .loading {
   text-align:center;
 }
+
+.errors {
+	color:red;
+}

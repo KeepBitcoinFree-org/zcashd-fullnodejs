@@ -262,7 +262,7 @@
 										<h2>zAccounts </h2>
 										<h4>*Shielded funds*</h4>
 										</header>
-										<button style="opacity:0.6" class="button"> Create New zAccount</button>
+										<button style="opacity:0.6" class="button"> Create New zAccount (coming s00n) </button>
 										
 									<% if(zAccounts) { %>
 									<% let counter = 0; %>
@@ -398,7 +398,7 @@
 								<% } %>
 
 								<% if(errormsg){ %>
-									<div style="color:red;">
+									<div class="errors">
 									<%= errormsg %>
 									<br /><br />
 									</div>
@@ -479,6 +479,12 @@
 								</ul>
 								
 									<p class="content">
+									<% if(zInfo.errors){ %>
+										<div class="errors">
+											<%= zInfo.errors %>
+										</div>
+									<% } %>
+									
 									<% if(zInfo.proxy){ %>
 										zcashd is using a <% if(zInfo.proxy == '127.0.0.1:9050'){ %>TOR<% } %> Proxy: <%= zInfo.proxy %>
 										<br /><br />
