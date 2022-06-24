@@ -164,39 +164,75 @@ app.post('/login', (req, res) => {
 
 })
 
-
+// HANDLE ALL FORM SUBMISSIONS
 app.post('/', (req, res) => {
-    
-    let sendSuccess = false;
-    let loggedIn = false;
-    let opid;
-    
-        console.log('send form submitted');
+            console.log('form submitted, determining which form that is - test form or sendZEC form');
         
-        //TODO: validate that it's only z or u addresses.
-        
-        // send request, handle it here.
-        let fromAddress = req.body.fromAddress.trim();
-        let toAddress = req.body.toAddress.trim();
-        let amountZEC = req.body.amount;
-        let allowRevealedAmounts = req.body.allowRevealedAmounts;
+        // var init - user is not yet logged in, sendSuccess is false, errormsg is null;
+        let loggedIn = false;
+        let sendSuccess = false;
         let errormsg;
-        let continu = true;
         
-        //TODO: add in MEMO functionality. Take in text from user, trim whitespace, convert to HEX?, then include in z_sendmany RPC call.
-        
-        let sendObj = {
-            "address": toAddress,
-            "amount": amountZEC
-        }
-
-            //console.log('fromAddress - '+ fromAddress);
-            //console.log('toAddress - '+ toAddress);
-            //console.log('amountZEC - '+ amountZEC);
-            //console.log('allowRevealedAmounts - '+ allowRevealedAmounts);
+        // Validate user entered PIN
+        if(req.body.userPIN){ 
+            console.log('userPIN form submitted');
             
+            //PIN submission, handle it here.
+            let userPIN = req.body.userPIN;
 
-        // set axiosConfig.data for validating z addr.
+            // if the PIN was entered, check if it's valid. If it is, log them in.
+            if(userPIN) {
+                if(userPIN == PIN){
+                    console.log('user PIN entered matches PIN on file');
+                    loggedIn = true;
+                }else{
+                    console.log('User entered PIN did not match. Re-enter PIN');
+                    errormsg  = 'User entered PIN did not match. Re-enter PIN';
+                    loggedIn = false; 
+                }
+            }
+            
+            
+        res.render('index', { wallet: walletInfo, zAccounts: zAccounts, zUsd: zUsd, zInfo: zInfo, systemInfo: systemInfo, sendSuccess: sendSuccess, loggedIn: loggedIn, errormsg: errormsg, successmsg: null});
+
+            
+        }
+        
+        if(req.body.fromAddress){
+            console.log('submitZEC form submitted');
+            
+            //user is already logged in if they're submitting this form. Keep user logged in?
+            
+            // send request, handle it here.
+            let fromAddress = req.body.fromAddress.trim();
+            let toAddress = req.body.toAddress.trim();
+            let amountZEC = req.body.amount;
+            let allowRevealedAmountsCheck = req.body.allowRevealedAmounts;
+            let errormsg;
+            let continu = true;
+            let allowRevealedAmounts;
+            
+            if(allowRevealedAmountsCheck){
+                allowRevealedAmounts = true;
+            }else{
+                allowRevealedAmounts = false;
+            }
+            
+            //TODO: add in MEMO functionality. Take in text from user, trim whitespace, convert to HEX?, then include in z_sendmany RPC call.
+            
+            let sendObj = {
+                "address": toAddress,
+                "amount": amountZEC
+            }
+
+                // DEBUG
+                //console.log('fromAddress - '+ fromAddress);
+                //console.log('toAddress - '+ toAddress);
+                //console.log('amountZEC - '+ amountZEC);
+                //console.log('allowRevealedAmounts - '+ allowRevealedAmounts);
+
+            // SEND ZEC
+            // set axiosConfig.data for validating z addr.
         // z_validateaddress
                 axiosConfig.data = {
                     "jsonrpc": "1.0",
@@ -308,8 +344,6 @@ app.post('/', (req, res) => {
                                     resp = response.data.result;
                                     // resp = opid-xxxx-xxx-xxxx-xxxx
                                     // can use opid to get status/result but it usually takes about ~25 sec for tx to finish. 
-                                    // TODO: Either give user option to check on status on the page by clicking another button
-                                    // TODO: or just keep checking here until it's successful (if there are no issues with that).
                                     
                                     //response is success, giving back an operation id (tx is submitted but not yet included in a block).
                                     console.log('tx broadcast successfully... ', resp);
@@ -328,7 +362,7 @@ app.post('/', (req, res) => {
                                     
                                     //console.log(response.
                                     loggedIn = true;
-                                     sendSuccess = false;
+                                    sendSuccess = false;
                                     res.render('index', { wallet: walletInfo, zAccounts: zAccounts, zUsd: zUsd, zInfo: zInfo, systemInfo: systemInfo, sendSuccess: sendSuccess, loggedIn: loggedIn, errormsg: errormsg, successmsg: null});
                                 
                                   }).then(function() {
@@ -352,27 +386,24 @@ app.post('/', (req, res) => {
                                                 resp = response.data.result;
                                                 //TODO: save this info somewhere in mem to be able to display later? Otherwise, once this RPC call is executed, the opid & txid are wiped from mem.
                                                 // only responding with txid info here then it's gone forever. (it is in the logs though)
-                                                console.log('response.data - ', response.data);
-                                                
-                                                console.log('response.data.result - ', response.data.result);
+                                                // DEBUG
+                                                // console.log('response.data - ', response.data);
+                                                // console.log('response.data.result - ', response.data.result);
                                                 
                                                 sendSuccess = true;
                                                 
-                                                // RESPONSE IS AN ARRAY. WE ARE ONLY DOING ONE TX SO JUST GRAB THE FIRST [0]
+                                                // RESPONSE IS AN ARRAY. WE ARE ONLY looking up ONE TX SO JUST GRAB THE FIRST one [0]
                                                 let txResult = response.data.result[0];
                                                 
                                                 if(txResult){
-                                                    console.log('The transaction was '+ txResult.status + ', with txid: ' + txResult.result.txid + '. Execution time was '+ txResult.execution_secs + '. The opid is '+ opid);
+                                                    console.log('The transaction was '+ txResult.status + ' with txid: ' + txResult.result.txid + '. Execution time was '+ txResult.execution_secs + '. The opid is '+ opid);
                                                     if(txResult.status === 'success'){
-                                                        successmsg = 'The transaction was successful! Txid: ' + txResult.result.txid + '. Execution time was '+ txResult.execution_secs;
+                                                        successmsg = 'The send transaction was successful! Txid: ' + txResult.result.txid + '. Execution time: '+ txResult.execution_secs;
                                                     }
                                                 }else {
-                                                    successmsg = 'Transaction was submitted successfully with '+ opid + ' but it is still pending inclusion in a block (took longer than 35sec). You can search the debug.log with the opid to see the result or use RPC call z_getoperationresult.';
+                                                    successmsg = 'Transaction was submitted successfully with '+ opid + ' but it is still pending inclusion in a block (took longer than 35sec). You can search the zecwallet/debug.log with the opid to see the result or use RPC call: ./zcash-cli z_getoperationresult [opid].';
                                                 }
-                                                
-
-
-                                                
+         
                                                 res.render('index', { wallet: walletInfo, zAccounts: zAccounts, zUsd: zUsd, zInfo: zInfo, systemInfo: systemInfo, sendSuccess: sendSuccess, loggedIn: loggedIn, successmsg: successmsg, errormsg: null});
                                                
                                             }).catch(function (error) {
@@ -393,9 +424,11 @@ app.post('/', (req, res) => {
                               });
                             }
                   });
-        })
+        }
+            
+    
+})
 
-//let userConnected = false;
 
 ////SOCKETio new socket connection
 //io.on('connection', async (socket) => {
@@ -461,6 +494,7 @@ function getWalletInfo(){
 // fetches all accounts associated with wallet
 // then fetches all addresses associated with each account.
 // then fetches all unspent utxos associated with each address.
+// If there is a large number of Accounts & addresses, this will take some time. We are caching responses to serve when homepage is hit.
 function getAccounts(){
       console.log('getting accounts');
     axiosConfig.data = {
@@ -616,8 +650,8 @@ function getZusd(){
 // curl --compressed "https://data.messari.io/api/v1/assets?fields=id,slug,symbol,metrics/market_data/price_usd"
 }
 
+// 
 function getZinfo(){
-     
      
     axiosConfig.data = {
         "jsonrpc": "1.0",
