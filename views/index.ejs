@@ -25,6 +25,9 @@
 						<p>a local full node GUI for the <b><a href="https://zcash.readthedocs.io/en/latest/rtd_pages/zcashd.html" target="_blank">zcashd wallet</a></b>.<br />
 						built with <a href="https://nodejs.org/" target="_blank">nodejs</a>, <a href="http://expressjs.com/" target="_blank">express</a> & <a href="https://axios-http.com/docs/intro" target="_blank">axios</a>. <span style="font-size:10pt">Created by <a href="https://keepbitcoinfree.org" target="_blank">keepbitcoinfree.org</a> </span></p>
 					</header>
+					
+					<!-- RESTRICT ENTIRE SITE UNLESS LOGGED IN -->
+				<% if(loggedIn){ %>
 
 				<!-- Nav -->
 					<nav id="nav">
@@ -210,9 +213,9 @@
 							}
 
 							
-							function showLoad() {
+							function showLoad(sendSuccess) {
 								if(!sendSuccess){
-								//	document.getElementById('loadingGif').style.display = "block";
+									document.getElementById('loadingGif').style.display = "block";
 								}
 							}
 							
@@ -423,7 +426,7 @@
 									<label for="allowRevealedAmounts">AllowRevealedAmounts? <span style="font-size:10pt">*ONLY required to migrate shielded pools. Not required for txns within the same pool. </span></label>
 									
 									<br />
-									<input type="submit" value="Send ZEC" onClick="showLoad()">
+									<input type="submit" value="Send ZEC" onClick="showLoad(<%= sendSuccess %>)">
 								</form>
 							
 								<% }else{ %>
@@ -525,6 +528,28 @@
 							</section> -->
 
 					</div>
+					
+					<% }else{ %>
+					<!-- USER NOT LOGGED IN - SHOW LOGIN FORM / PIN ENTRY -->
+					
+					<div id="main" style="padding:25px;">
+								<% if(errormsg){ %>
+									<div class="errors">
+									<%= errormsg %>
+									<br /><br />
+									</div>
+								<% } %>
+								
+								<form name="loginForm" action="/#main" method="post">
+									<h3>Enter PIN to access zcashd wallet</h3> <br />
+									<label for="userPIN">PIN: </label>
+									<input id="userPIN" type="number" name="userPIN" placeholder="0000" min="0000" max="9999" step="1" required>
+									<input type="submit" value="Submit">
+									</form>
+					</div>
+									
+					<% } %>
+					
 
 				<!-- Footer -->
 				<!--	<footer id="footer">
@@ -562,6 +587,8 @@
 						</center></p>
 						<p class="copyright" style="color:black;width="100%">
 						<center>
+						<a href="https://github.com/KeepBitcoinFree-org/zcashd-fullnodejs" target="_blank">View Source Code</a>
+						<br /><br />
 						Design by <a href="https://keepbitcoinfree.org" target="_blank">KeepBitcoinFree.org</a> <br /> <a href="https://html5up.net" style="font-size:6pt">HTML5 UP</a>.
 						</center>
 						</p>

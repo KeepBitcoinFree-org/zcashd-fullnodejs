@@ -403,7 +403,8 @@ app.post('/', (req, res) => {
                                                 }else {
                                                     successmsg = 'Transaction was submitted successfully with '+ opid + ' but it is still pending inclusion in a block (took longer than 35sec). You can search the zecwallet/debug.log with the opid to see the result or use RPC call: ./zcash-cli z_getoperationresult [opid].';
                                                 }
-         
+                                                //return with user logged in so they can see the successmsg, txid, etc.
+                                                loggedIn = true;
                                                 res.render('index', { wallet: walletInfo, zAccounts: zAccounts, zUsd: zUsd, zInfo: zInfo, systemInfo: systemInfo, sendSuccess: sendSuccess, loggedIn: loggedIn, successmsg: successmsg, errormsg: null});
                                                
                                             }).catch(function (error) {
