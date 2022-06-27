@@ -1,14 +1,17 @@
 const request = require('request');
 const bodyParser = require('body-parser');
 const express = require('express');
+
 var app = express();
 const http = require('http');
 const server = http.createServer(app);
 //const uuid = require('uuid);
+// add sessions / express-sessions to log in user / cache data? 
+// https://hacks.mozilla.org/2012/12/using-secure-client-side-sessions-to-build-simple-and-scalable-node-js-applications-a-node-js-holiday-season-part-3/
+// https://hackernoon.com/how-to-use-session-in-nodejs
 
 // replace request with axios
 const axios = require('axios');
-// add socket.io for websockets so I don't need to refresh page!
 
 const { Server } = require("socket.io");
 const io = new Server(server);
@@ -18,6 +21,9 @@ const io = new Server(server);
 const us = new Intl.NumberFormat('en-us');
 const os = require('os');
 
+// load up .env file vars. accessible with process.env.variable
+const dotenv = require('dotenv');
+dotenv.config();
 
 app.set('views', __dirname + '/views');
 app.use(express.static('public'));
@@ -28,11 +34,31 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 
-//TODO: move all this to use .env file, it would be safer than entering passwords in plain text on the app start 
-// User and password specified like so: node index.js username password PIN
-let username = process.argv.length < 2 ? "default-username" : process.argv[2];
-let password = process.argv.length < 3 ? "default-password" : process.argv[3];
-let PIN = process.argv.length < 4 ? "default-PIN" : process.argv[4];
+// User and password specified like so: node index.js username password PIN - OLD
+//let username = process.argv.length < 2 ? "default-username" : process.argv[2];
+//let password = process.argv.length < 3 ? "default-password" : process.argv[3];
+//let PIN = process.argv.length < 4 ? "default-PIN" : process.argv[4];
+
+// Using .env file, safer than entering passwords in plain text on the app start 
+const username = process.env.rpcuser;
+const password = process.env.rpcpassword;
+const PIN = process.env.PIN;
+
+// check if env file vars are empty. If so, let user know and exit app.
+if(!username){
+    console.log('rpcuser is not configured in .env file. Create a file named .env and add rpcuser=rpcusername');
+    process.exit(1);
+}
+
+if(!password){
+    console.log('rpcpassword is not configured in .env file. Create a file named .env and add rpcpassword=rpcpassword123');
+    process.exit(1);
+}
+
+if(!PIN){
+    console.log('PIN is not configured in .env file. Create a file named .env and add PIN=1234 (up to 9999) to configure your PIN');
+    process.exit(1);
+}
 
 // init global vars
 let walletInfo;
@@ -225,11 +251,22 @@ app.post('/', (req, res) => {
                 "amount": amountZEC
             }
 
-                // DEBUG
+                // DEBUG MOCK SEND. COMMENT ALL BELOW 
+                //console.log('Mock send success');
                 //console.log('fromAddress - '+ fromAddress);
                 //console.log('toAddress - '+ toAddress);
                 //console.log('amountZEC - '+ amountZEC);
                 //console.log('allowRevealedAmounts - '+ allowRevealedAmounts);
+            
+            //setTimeout(function () {
+            //let successmsg = 'MOCK ZEC SEND TX SUCCESS'; 
+            //sendSuccess = true;               
+            ////return with user logged in so they can see the successmsg, txid, etc.
+             //loggedIn = true;
+            //res.render('index', { wallet: walletInfo, zAccounts: zAccounts, zUsd: zUsd, zInfo: zInfo, systemInfo: systemInfo, sendSuccess: sendSuccess, loggedIn: loggedIn, successmsg: successmsg, errormsg: null});
+            //}, 20000);
+               //  DEBUG MOCK SEND. COMMENT ALL ABOVE.
+
 
             // SEND ZEC
             // set axiosConfig.data for validating z addr.
@@ -494,7 +531,7 @@ function getWalletInfo(){
 
 // fetches all accounts associated with wallet
 // then fetches all addresses associated with each account.
-// then fetches all unspent utxos associated with each address.
+// then fetches address balance associated with each address.
 // If there is a large number of Accounts & addresses, this will take some time. We are caching responses to serve when homepage is hit.
 function getAccounts(){
       console.log('getting accounts');
@@ -555,7 +592,12 @@ function getAccounts(){
                       
                             //create address array to use in rpc call to find all unspent utxo's for each Zaccount
                             // for some reason with z_listunspent, using one of the accounts ua's pulls info for all of them.
+                            // if you were to pass in all (x) addresses, then you get the unspent tx's multiplied by (x).
+                            
                             // will probably have to fix this later.
+                            
+                            // TODO: SCRAP UNSPENT AND SWITCH TO Z_GETBALANCE (which works correctly although is/will be deprecated?).
+                            
                               let addressList = new Array();
                              
                                   addressList.push(zacnt.addresses[0].ua);

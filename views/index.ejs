@@ -27,7 +27,7 @@
 					</header>
 					
 					<!-- RESTRICT ENTIRE SITE UNLESS LOGGED IN -->
-				<% if(loggedIn){ %>
+				<% // if(loggedIn){ %>
 
 				<!-- Nav -->
 					<nav id="nav">
@@ -155,10 +155,10 @@
 										</p>
 										<ul class="actions">
 										
-										<li><button onClick="history.go(0)">Refresh</button></li>
+										<li><a href="/"><button>Refresh</button></a></li>
 										<li style="opacity:0.6"><a class="button primary">Shield Transparent ZEC (coming s00n)</a></li> 
 										
-									<!-- 	<button onClick="window.location.reload();">Refresh</button> 
+									<!-- 	 <button onClick="history.go(0)">Refresh</button> <button onClick="window.location.reload();">Refresh</button> 
 									<div style="opacity:0.7">
 										<button style="margin-left:2em; margin-right:2em;">Auto-Shield Transparent ZEC (s00n)</button></div>
 										
@@ -213,9 +213,24 @@
 							}
 
 							
-							function showLoad(sendSuccess) {
-								if(!sendSuccess){
-									document.getElementById('loadingGif').style.display = "block";
+							function showLoad() {
+								let fromAddress = document.getElementById('fromAddress');
+								let loadingGif = document.getElementById('loadingGif');
+								let loading = document.getElementById('loading');
+								let toAddress = document.getElementById('toAddress');
+								let amount = document.getElementById('amount');
+								
+								if(fromAddress.value.length !== 0 && toAddress.value.length !== 0 && amount.value.length !== 0){
+									console.log('All required fields are populated. Show the loading GIF and hide old successmsgs')
+									// show loading gif
+									loadingGif.style.display = "block";
+									// hide the previous successMsg if it exists
+									successMsg.style.display = "none";
+									// focus screen on loadingGif so they know its working on it
+									loadingGif.focus();
+								}else{
+									console.log('all fields are not filled out, dont show loading')
+									loadingGif.style.display = "none";
 								}
 							}
 							
@@ -240,23 +255,7 @@
 							}
 							
 							</script>
-							
-							<script>
-							
-							$( '.dropdown-toggle' ).on( 'click touchstart', function(){
-							  $( '.dropdown-menu' ).toggleClass( 'dropdown-menu-open' );
-							});
-							
-							$("#sendZECform").submit(function(e) {
-								if(sendSuccess){
-									e.preventDefault();
-								}
-								document.getElementById('loadingGif').style.display = "block";
-								
-							});
-														
-							</script>
-							
+						
 							
 							<section id="first" class="main special">
 								<div class="spotlight">
@@ -309,6 +308,7 @@
 										  
 										   <% zacct.unspentList.forEach(utxo => { %>
 										   <% if(utxo.spendable === true && utxo.address === ua && utxo.pool === 'orchard') { %>
+										   <% // DEBUG // console.log('utxo.amount - ' + utxo.amount); %>
 										   <%  unspentBal += utxo.amount %>
 											<% } %>
 										   <!-- TODO: separate by pools -->
@@ -323,8 +323,7 @@
 										   <br /> <%= zaddr.ua %> <br />	<span id="qrcode<%= zaddr.ua %>"></span>	<span onClick="showQR('<%= ua %>', <%= n %>)" id="qrbtn<%= n %>" class="button">Get QR</span> 
 										   <span id="sendbtn<%= ua %>" class="button primary" style="opacity:0.6">Send ZEC</span> 
 											<br />
-										  
-										  
+
 										  
 										   
 										   <% n++ %>
@@ -382,19 +381,22 @@
 							<section id="send" class="main special">
 								<header class="major">
 									<h2>Send ZEC</h2>
-									<% if(sendSuccess !== true){ %>
-									<div class="loading" style="text-align:center;">
-										<img src="images/loading.gif" id="loadingGif" height="250px" style="display:none;">
-									</div>
-									<% } %>
+
 								</header>
 								<div style="text-align: left;">
 								
 								<!-- use txid to track if successful and send back info -->
-
+								
+									
+									<center>
+									<div id="loading" class="loading" style="text-align:center;">
+										<img src="images/loading.gif" id="loadingGif" height="250px" style="display:none;">
+									</div>
+									</center>
+								
 									
 								<% if(sendSuccess == true){ %>
-									<div> 
+									<div id='successMsg'> 
 									ZEC tx submitted successfully. <br />
 									<%= successmsg %> <br /><br />
 									</div>
@@ -411,7 +413,7 @@
 								<div style="text-align:left">
 								
 								<% if(loggedIn) { %>
-									<form name="sendZECform" action="/#send" method="post">
+									<form id="sendZECform" name="sendZECform" action="/#send" method="post">
 									
 									<label for="fromAddress">From Address: </label>
 									<input id="fromAddress" type="text" name="fromAddress" placeholder="From Address..." required>
@@ -426,12 +428,17 @@
 									<label for="allowRevealedAmounts">AllowRevealedAmounts? <span style="font-size:10pt">*ONLY required to migrate shielded pools. Not required for txns within the same pool. </span></label>
 									
 									<br />
-									<input type="submit" value="Send ZEC" onClick="showLoad(<%= sendSuccess %>)">
+									<input type="submit" value="Send ZEC" onClick="showLoad()" > <br />
+									<% if(sendSuccess){ %>
+									<span style="font-size:10pt">
+										  * If you've already submitted a form (sent a transaction), DO NOT reload the page as it will re-submit & resend the same transaction. The browser should prompt you to let you know about this but DO NOT do it unless you want to resend the tx.
+										  </span>
+									<% } %>
 								</form>
 							
 								<% }else{ %>
 				
-									<form name="loginForm" action="/#send" method="post">
+									<form id="loginForm" name="loginForm" action="/#send" method="post">
 									Enter PIN to send ZEC! <br /><br />
 									<label for="userPIN">PIN: </label>
 									<input id="userPIN" type="number" name="userPIN" placeholder="0000" min="0000" max="9999" step="1" required>
@@ -529,10 +536,10 @@
 
 					</div>
 					
-					<% }else{ %>
+					<% // }else{ %>
 					<!-- USER NOT LOGGED IN - SHOW LOGIN FORM / PIN ENTRY -->
 					
-					<div id="main" style="padding:25px;">
+				<!--	<div id="main" style="padding:25px;">
 								<% if(errormsg){ %>
 									<div class="errors">
 									<%= errormsg %>
@@ -546,9 +553,9 @@
 									<input id="userPIN" type="number" name="userPIN" placeholder="0000" min="0000" max="9999" step="1" required>
 									<input type="submit" value="Submit">
 									</form>
-					</div>
+					</div> -->
 									
-					<% } %>
+					<% // } %>
 					
 
 				<!-- Footer -->
@@ -571,11 +578,7 @@
 								<dd><a href="#">information@untitled.tld</a></dd>
 							</dl>
 							<ul class="icons">
-								<li><a href="#" class="icon brands fa-twitter alt"><span class="label">Twitter</span></a></li>
-								<li><a href="#" class="icon brands fa-facebook-f alt"><span class="label">Facebook</span></a></li>
-								<li><a href="#" class="icon brands fa-instagram alt"><span class="label">Instagram</span></a></li>
-								<li><a href="#" class="icon brands fa-github alt"><span class="label">GitHub</span></a></li>
-								<li><a href="#" class="icon brands fa-dribbble alt"><span class="label">Dribbble</span></a></li>
+
 							</ul> 
 						</section>
 						
@@ -587,9 +590,9 @@
 						</center></p>
 						<p class="copyright" style="color:black;width="100%">
 						<center>
-						<a href="https://github.com/KeepBitcoinFree-org/zcashd-fullnodejs" target="_blank">View Source Code</a>
-						<br /><br />
-						Design by <a href="https://keepbitcoinfree.org" target="_blank">KeepBitcoinFree.org</a> <br /> <a href="https://html5up.net" style="font-size:6pt">HTML5 UP</a>.
+						<a href="https://github.com/KeepBitcoinFree-org/zcashd-fullnodejs" target="_blank">Open Source Code</a>
+						<br />
+						Design by <a href="https://keepbitcoinfree.org" target="_blank">KeepBitcoinFree.org</a>.
 						</center>
 						</p>
 						
